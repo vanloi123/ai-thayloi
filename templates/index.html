@@ -31,6 +31,8 @@
       background: var(--bg-dark);
       color: var(--text-dark);
       transition: background 0.4s ease, color 0.4s ease;
+      /* FIX: Ngăn chặn cuộn ngang toàn bộ trang một cách chính xác */
+      overflow-x: hidden; 
     }
 
     body.light {
@@ -112,7 +114,16 @@
     }
 
     /* Chat Bubbles */
-    .msg { display: flex; gap: 12px; align-items: flex-start; max-width: 100%; }
+    .msg { 
+        display: flex; 
+        gap: 12px; 
+        align-items: flex-start; 
+        width: 100%; 
+        max-width: 100%;
+        box-sizing: border-box; 
+        /* FIX QUAN TRỌNG: Ngăn chặn bong bóng chat đẩy item ra ngoài */
+        overflow: hidden;
+    }
     .msg.user { justify-content: flex-end; }
 
     .msg .avatar {
@@ -132,13 +143,14 @@
       word-wrap: break-word;
       transition: background-color 0.3s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-width: 0; 
     }
     .bubble.ai {
         background: var(--card-dark);
         color: var(--text-dark);
         border-top-left-radius: 4px;
-        /* FIX 1: Ngăn chặn nội dung bên trong tràn ngang ra khỏi bubble */
-        overflow-x: hidden; 
+        /* FIX: Cho phép nội dung tràn ra, để khối <pre> tự cuộn */
+        overflow-x: visible; 
     }
     .bubble.user {
         background: var(--primary);
@@ -149,28 +161,86 @@
     body.light .bubble.ai { background: #E2E8F0; color: var(--text-light); }
     body.light .bubble.user { background: var(--primary); color: #1E293B; }
 
-    /* FIX 2: Code Block Overflow - Đảm bảo khối code cuộn bên trong */
+    /* Markdown Content Styles */
+    .bubble.ai .markdown > * {
+        max-width: 100%; 
+    }
+
+    /* FIX TRIỆT ĐỂ: Code Block Overflow */
     .bubble.ai pre {
-        max-width: 100%;
+        /* FIX: Khôi phục thanh cuộn ngang bên trong khối code */
         overflow-x: auto; 
+        max-width: 100%;
         padding: 1rem;
         border-radius: 8px;
         margin-top: 0.75rem;
+        position: relative; 
+        
+        /* FIX QUAN TRỌNG: Đảm bảo nó co lại và chiếm 100% của bubble */
+        width: 100%; 
+        box-sizing: border-box; 
     }
     
-    /* FIX 3: Ngăn chặn code element bên trong <pre> vượt quá 100% */
     .bubble.ai pre code {
-        white-space: pre; 
+        width: 100%; 
+        max-width: 100%; 
         display: block;
-        min-width: 0; /* Rất quan trọng cho responsive flex/grid item */
+        min-width: 0; 
+        white-space: pre; 
     }
     
     body.light .bubble.ai pre {
         background: #F1F5F9;
     }
 
+    /* NEW FEATURE: Copy Button Styles */
+    .copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        opacity: 0.8;
+        transition: opacity 0.2s, background 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        z-index: 10; 
+    }
+    .copy-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.3);
+    }
+    body.light .copy-btn {
+        background: rgba(0, 0, 0, 0.1);
+        color: #1E293B;
+    }
+    body.light .copy-btn:hover {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    /* Biểu tượng Copy */
+    .copy-icon {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+    .copy-icon-copied {
+        stroke: #00E6E6;
+    }
+    /* End Copy Button Styles */
 
-    /* Topic Button */
+
+    /* Topic Button Styles */
     .topic-btn {
       width: 100%;
       text-align: left;
@@ -187,7 +257,7 @@
     body.light .topic-btn:hover { background: #F1F5F9; }
     body.light .topic-active { background: #E9F7F9; border-left-color: var(--primary); }
 
-    /* Pill */
+    /* Pill Styles */
     .pill {
       background: rgba(0,255,255,0.1);
       color: var(--primary);
@@ -203,7 +273,7 @@
         border: 1px solid #00E6E6;
     }
 
-    /* Offcanvas */
+    /* Offcanvas Styles */
     .offcanvas {
         position: fixed;
         top: 0; bottom: 0; left: 0;
@@ -215,7 +285,7 @@
         backdrop-filter: blur(6px);
         transform: translateX(-100%);
         transition: transform 0.4s ease-in-out;
-        overflow-y: auto; /* Cho phép cuộn bên trong offcanvas */
+        overflow-y: auto; 
     }
     .offcanvas.open { transform: translateX(0); }
 
@@ -230,7 +300,7 @@
     }
     .overlay.show { opacity: 1; visibility: visible; }
     
-    /* Fixed Input Box */
+    /* Fixed Input Box Styles */
     .input-wrapper {
         position: fixed;
         bottom: 0;
@@ -253,7 +323,7 @@
         }
     }
 
-    /* Loading dots */
+    /* Loading dots Styles */
     .loading-dots span {
         display: inline-block;
         width: 8px;
@@ -272,7 +342,7 @@
         40% { transform: scale(1); }
     }
 
-    /* Fixed Header on Mobile */
+    /* Fixed Header on Mobile Styles */
     .mobile-header {
         position: fixed;
         top: 0;
@@ -417,15 +487,15 @@
     function toggleMenu() {
       offcanvas.classList.toggle('open');
       overlay.classList.toggle('show');
-      // FIX: Quản lý thuộc tính cuộn của body
-      document.body.style.overflow = offcanvas.classList.contains('open') ? 'hidden' : '';
+      // Khi menu mở, ngăn cuộn (bao gồm cuộn dọc)
+      document.body.style.overflow = offcanvas.classList.contains('open') ? 'hidden' : ''; 
     }
     
     function closeMenu() {
       offcanvas.classList.remove('open');
       overlay.classList.remove('show');
-      // FIX: Đảm bảo cuộn trang được khôi phục khi đóng
-      document.body.style.overflow = '';
+      // Khi menu đóng, khôi phục cuộn
+      document.body.style.overflow = ''; 
     }
 
     // === Topic Selection ===
@@ -460,13 +530,12 @@
 
       // 2. Append Loading State
       const loading = appendLoading();
-      chatWindow.scrollTop = chatWindow.scrollHeight; // Ensure scroll after loading is added
+      chatWindow.scrollTop = chatWindow.scrollHeight; 
 
       try {
         const res = await fetch('/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Include the current topic in the prompt to the AI model
           body: JSON.stringify({ message: `Chủ đề: ${currentTopic}\n${message}` })
         });
 
@@ -516,14 +585,61 @@
       // Highlight code blocks
       Prism.highlightAll();
 
+      // NEW FEATURE: Add Copy button to all code blocks
+      addCopyButtons(msg);
+
       // Scroll smoothly to the newest message
       chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
     }
 
+    function addCopyButtons(msgElement) {
+        const codeBlocks = msgElement.querySelectorAll('pre');
+
+        codeBlocks.forEach(pre => {
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.innerHTML = `
+                <svg class="copy-icon" viewBox="0 0 24 24">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy</span>
+            `;
+
+            button.addEventListener('click', async () => {
+                const code = pre.querySelector('code').innerText;
+                const buttonText = button.querySelector('span');
+                const buttonIcon = button.querySelector('.copy-icon');
+
+                try {
+                    await navigator.clipboard.writeText(code);
+                    
+                    // Feedback visual
+                    buttonText.textContent = 'Đã sao chép!';
+                    buttonIcon.classList.add('copy-icon-copied');
+                    
+                    setTimeout(() => {
+                        buttonText.textContent = 'Copy';
+                        buttonIcon.classList.remove('copy-icon-copied');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Không thể sao chép: ', err);
+                    buttonText.textContent = 'Lỗi!';
+                    setTimeout(() => {
+                        buttonText.textContent = 'Copy';
+                    }, 2000);
+                }
+            });
+
+            pre.appendChild(button);
+        });
+    }
+
+
     // === Theme Toggle (Light/Dark Mode) ===
     function toggleTheme() {
         document.body.classList.toggle('light');
-        // Save preference to localStorage (optional but recommended for professionalism)
+        // Save preference to localStorage
         const isLight = document.body.classList.contains('light');
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
