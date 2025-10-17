@@ -5,26 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>AI Thầy Lợi - Trợ lý học Tin học - Cấp THPT</title>
 
-  <!-- Tailwind + Markdown + Code Highlight -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css">
   <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
 
   <style>
+    /* Custom Variables & Global Styles */
     :root {
-      --main: #00FFFF;
-      --bg-dark: #01131a;
-      --bg-light: #f5fbfb;
-      --text-dark: #e6fbff;
-      --text-light: #05242b;
+      --primary: #00E6E6; /* Bright Cyan - Main Color */
+      --bg-dark: #0A1929; /* Deep Navy Blue */
+      --bg-light: #F8FAFC; /* Light Blue-Gray */
+      --text-dark: #E2E8F0;
+      --text-light: #1E293B;
+      --card-dark: rgba(255, 255, 255, 0.05);
+      --card-light: #FFFFFF;
     }
 
     html, body {
       height: 100%;
       margin: 0;
-      font-family: "Segoe UI", Roboto, system-ui, Arial;
+      font-family: "Segoe UI", Roboto, system-ui, Arial, sans-serif;
       background: var(--bg-dark);
       color: var(--text-dark);
       transition: background 0.4s ease, color 0.4s ease;
@@ -34,34 +37,48 @@
       background: var(--bg-light);
       color: var(--text-light);
     }
+    body.light .sidebar, body.light .offcanvas {
+        background: var(--card-light);
+        border: 1px solid #E2E8F0;
+    }
 
-    /* Gradient moving background */
+    /* Gradient moving background - Subtle */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
       z-index: -2;
       background:
-        radial-gradient(circle at 15% 25%, #00ffff22 0%, transparent 40%),
-        radial-gradient(circle at 85% 75%, #0077ff33 0%, transparent 40%);
-      animation: bgMove 18s ease-in-out infinite alternate;
+        radial-gradient(circle at 10% 20%, #00ffff11 0%, transparent 35%),
+        radial-gradient(circle at 90% 80%, #0077ff11 0%, transparent 35%);
+      animation: bgMove 20s ease-in-out infinite alternate;
+      opacity: 0.8;
     }
     @keyframes bgMove {
       0% { background-position: 0% 0%, 100% 100%; }
       100% { background-position: 100% 0%, 0% 100%; }
     }
 
+    /* App Layout */
     .app-shell {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 1fr; /* Mobile default */
       min-height: 100vh;
-      gap: 20px;
-      padding: 20px;
       box-sizing: border-box;
+      padding-bottom: 90px; /* Space for the fixed input box */
+    }
+
+    @media (min-width: 1024px) {
+        .app-shell {
+            grid-template-columns: 280px 1fr;
+            padding: 20px;
+            padding-bottom: 20px;
+            gap: 20px;
+        }
     }
 
     .sidebar {
-      background: rgba(255,255,255,0.04);
+      background: var(--card-dark);
       border-radius: 12px;
       padding: 16px;
       backdrop-filter: blur(6px);
@@ -69,48 +86,136 @@
       overflow-y: auto;
     }
 
-    .main { display: flex; flex-direction: column; gap: 12px; }
+    .main {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px; /* Add padding for mobile */
+        padding-bottom: 0;
+    }
 
+    @media (min-width: 1024px) {
+        .main { padding: 0; } /* Reset padding on desktop/lg */
+    }
+
+    /* Chat Window */
     .chat-window {
-      background: rgba(255,255,255,0.02);
+      background: transparent;
       border-radius: 14px;
-      padding: 18px;
+      padding: 18px 0;
       overflow-y: auto;
       flex: 1;
-      border: 1px solid rgba(0,255,255,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-top: 50px; /* Space for fixed header on mobile */
     }
 
-    .msg { display: flex; gap: 12px; align-items: flex-start; }
+    /* Chat Bubbles */
+    .msg { display: flex; gap: 12px; align-items: flex-start; max-width: 100%; }
+    .msg.user { justify-content: flex-end; }
+
     .msg .avatar {
-      min-width: 40px; min-height: 40px;
-      border-radius: 12px; display:flex;align-items:center;justify-content:center;
-      font-weight:700; color:#001f24; background:var(--main);
+      min-width: 32px; min-height: 32px;
+      border-radius: 8px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700; font-size: 0.8rem;
+      color: #000;
+      background: var(--primary);
     }
-    .bubble {
-      max-width: 78%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      line-height: 1.5;
-      word-wrap: break-word;
-    }
-    .bubble.ai { background:#062a33; color:#e6fbff; border-bottom-left-radius:4px; }
-    .bubble.user { background:var(--main); color:#012428; border-bottom-right-radius:4px; }
 
-    body.light .bubble.ai { background:#e9f7f9; color:#05242b; }
-    body.light .bubble.user { background:#00e6e6; color:#001f1f; }
+    .bubble {
+      max-width: 85%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      line-height: 1.6;
+      word-wrap: break-word;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .bubble.ai {
+        background: var(--card-dark);
+        color: var(--text-dark);
+        border-top-left-radius: 4px;
+        /* FIX 1: Ngăn chặn nội dung bên trong tràn ngang ra khỏi bubble */
+        overflow-x: hidden; 
+    }
+    .bubble.user {
+        background: var(--primary);
+        color: #1E293B;
+        border-top-right-radius: 4px;
+    }
+
+    body.light .bubble.ai { background: #E2E8F0; color: var(--text-light); }
+    body.light .bubble.user { background: var(--primary); color: #1E293B; }
+
+    /* FIX 2: Code Block Overflow - Đảm bảo khối code cuộn bên trong */
+    .bubble.ai pre {
+        max-width: 100%;
+        overflow-x: auto; 
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.75rem;
+    }
+    
+    /* FIX 3: Ngăn chặn code element bên trong <pre> vượt quá 100% */
+    .bubble.ai pre code {
+        white-space: pre; 
+        display: block;
+        min-width: 0; /* Rất quan trọng cho responsive flex/grid item */
+    }
+    
+    body.light .bubble.ai pre {
+        background: #F1F5F9;
+    }
+
+
+    /* Topic Button */
+    .topic-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 14px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+    .topic-btn:hover { background: rgba(0,255,255,0.08); }
+    .topic-active {
+      background: linear-gradient(90deg, rgba(0,255,255,0.14), rgba(0,255,255,0.04));
+      border-left: 3px solid var(--primary);
+      font-weight: 600;
+    }
+    body.light .topic-btn:hover { background: #F1F5F9; }
+    body.light .topic-active { background: #E9F7F9; border-left-color: var(--primary); }
+
+    /* Pill */
+    .pill {
+      background: rgba(0,255,255,0.1);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: 1px solid rgba(0,255,255,0.15);
+    }
+    body.light .pill {
+        background: #D4F3F3;
+        color: #008888;
+        border: 1px solid #00E6E6;
+    }
 
     /* Offcanvas */
     .offcanvas {
-      position: fixed;
-      top: 0; bottom: 0; left: 0;
-      width: 280px;
-      padding: 18px;
-      z-index: 70;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-      border-right: 1px solid rgba(0,255,255,0.05);
-      backdrop-filter: blur(6px);
-      transform: translateX(-100%);
-      transition: transform 0.4s ease-in-out;
+        position: fixed;
+        top: 0; bottom: 0; left: 0;
+        width: 280px;
+        padding: 18px;
+        z-index: 70;
+        background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        border-right: 1px solid rgba(0,255,255,0.05);
+        backdrop-filter: blur(6px);
+        transform: translateX(-100%);
+        transition: transform 0.4s ease-in-out;
+        overflow-y: auto; /* Cho phép cuộn bên trong offcanvas */
     }
     .offcanvas.open { transform: translateX(0); }
 
@@ -124,111 +229,167 @@
       transition: opacity 0.3s ease;
     }
     .overlay.show { opacity: 1; visibility: visible; }
-
-    @media (max-width: 1024px) {
-      .app-shell { grid-template-columns: 1fr; padding: 12px; gap: 12px; }
-      .sidebar { display:none; }
+    
+    /* Fixed Input Box */
+    .input-wrapper {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        padding: 12px;
+        background: linear-gradient(180deg, transparent, var(--bg-dark) 40%);
+        transition: background 0.4s ease;
+    }
+    body.light .input-wrapper {
+        background: linear-gradient(180deg, transparent, var(--bg-light) 40%);
     }
 
-    .topic-btn {
-      width: 100%;
-      text-align: left;
-      padding: 10px 14px;
-      border-radius: 8px;
-      transition: 0.2s;
-    }
-    .topic-btn:hover { background: rgba(0,255,255,0.08); }
-    .topic-active {
-      background: linear-gradient(90deg, rgba(0,255,255,0.14), rgba(0,255,255,0.06));
-      border-left: 3px solid var(--main);
+    @media (min-width: 1024px) {
+        .input-wrapper {
+            position: static;
+            padding: 0;
+            background: transparent;
+        }
     }
 
-    .pill {
-      background: rgba(0,255,255,0.06);
-      color: var(--main);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 600;
+    /* Loading dots */
+    .loading-dots span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin: 0 1px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        animation: loading 1.4s infinite ease-in-out;
+        opacity: 0.6;
+    }
+    .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0s; }
+    @keyframes loading {
+        0%, 80%, 100% { transform: scale(0.6); }
+        40% { transform: scale(1); }
+    }
+
+    /* Fixed Header on Mobile */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 40;
+        background: var(--bg-dark);
+        padding: 12px;
+        transition: background 0.4s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @media (min-width: 1024px) {
+        .mobile-header { display: none; }
+    }
+    body.light .mobile-header {
+        background: var(--bg-light);
+        border-bottom: 1px solid #E2E8F0;
     }
   </style>
 </head>
 <body>
-  <!-- Offcanvas menu -->
-  <div id="offcanvas" class="offcanvas" aria-hidden="true">
-    <div class="flex items-center gap-3 mb-4">
-      <img src="{{ url_for('static', filename='logo.png') }}" class="w-12 h-12 rounded-md shadow">
+  <div id="offcanvas" class="offcanvas transition-transform duration-400 ease-in-out lg:hidden" aria-hidden="true">
+    <div class="flex items-center gap-3 mb-6 pb-2 border-b border-gray-700/50">
+      <img src="{{ url_for('static', filename='logo.png') }}" class="w-10 h-10 rounded-lg shadow-lg">
       <div>
-        <div class="text-white font-bold">AI Thầy Lợi</div>
-        <div class="text-xs text-cyan-200">Trợ lý học Tin học - Cấp THPT</div>
+        <div class="text-xl font-extrabold text-white">AI Thầy Lợi</div>
+        <div class="text-xs text-cyan-300">Trợ lý học Tin học - Cấp THPT</div>
       </div>
     </div>
 
-    <div class="mt-2 space-y-2">
-      <div class="text-sm text-cyan-200 font-semibold mb-2">Chủ đề học</div>
+    <div class="mt-4 space-y-1">
+      <div class="text-sm text-cyan-400 font-bold mb-2 uppercase tracking-wider">Chủ đề học</div>
       <button class="topic-btn" data-topic="Python">🐍 Python</button>
       <button class="topic-btn" data-topic="AI">🤖 Trí tuệ nhân tạo (AI)</button>
       <button class="topic-btn" data-topic="Mạng">🌐 Mạng máy tính</button>
       <button class="topic-btn" data-topic="CSDL">🗄️ Cơ sở dữ liệu</button>
       <button class="topic-btn" data-topic="Thuật toán">🔢 Thuật toán & Lập trình</button>
       <button class="topic-btn" data-topic="Văn phòng">💼 Tin học văn phòng</button>
-      <button id="close-offcanvas" class="w-full mt-4 py-2 rounded-lg bg-cyan-500 text-gray-900 font-semibold">Đóng</button>
+    </div>
+    <div class="absolute bottom-4 left-4 right-4">
+        <button id="close-offcanvas" class="w-full mt-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold transition">
+            Đóng Menu
+        </button>
     </div>
   </div>
   <div id="overlay" class="overlay" aria-hidden="true"></div>
 
   <div class="app-shell">
-    <aside class="sidebar hidden lg:block">
-      <div class="flex items-center gap-3 mb-3">
-        <img src="{{ url_for('static', filename='logo.png') }}" class="w-12 h-12 rounded-md shadow">
+    <aside class="sidebar hidden lg:block shadow-2xl">
+      <div class="flex items-center gap-3 mb-6 pb-4 border-b border-cyan-800/50">
+        <img src="{{ url_for('static', filename='logo.png') }}" class="w-10 h-10 rounded-lg shadow-lg">
         <div>
-          <div class="text-white font-bold">AI Thầy Lợi</div>
-          <div class="text-xs text-cyan-200">Trợ lý học Tin học - Cấp THPT</div>
+          <div class="text-xl font-extrabold text-white">AI Thầy Lợi</div>
+          <div class="text-xs text-cyan-300">Trợ lý học Tin học - Cấp THPT</div>
         </div>
       </div>
-      <div class="text-sm text-cyan-200 font-semibold mb-2">Chủ đề học</div>
-      <button class="topic-btn" data-topic="Python">🐍 Python</button>
-      <button class="topic-btn" data-topic="AI">🤖 Trí tuệ nhân tạo (AI)</button>
-      <button class="topic-btn" data-topic="Mạng">🌐 Mạng máy tính</button>
-      <button class="topic-btn" data-topic="CSDL">🗄️ Cơ sở dữ liệu</button>
-      <button class="topic-btn" data-topic="Thuật toán">🔢 Thuật toán & Lập trình</button>
-      <button class="topic-btn" data-topic="Văn phòng">💼 Tin học văn phòng</button>
+      <div class="text-sm text-cyan-400 font-bold mb-2 uppercase tracking-wider">Chủ đề học</div>
+      <div class="space-y-1">
+        <button class="topic-btn" data-topic="Python">🐍 Python</button>
+        <button class="topic-btn" data-topic="AI">🤖 Trí tuệ nhân tạo (AI)</button>
+        <button class="topic-btn" data-topic="Mạng">🌐 Mạng máy tính</button>
+        <button class="topic-btn" data-topic="CSDL">🗄️ Cơ sở dữ liệu</button>
+        <button class="topic-btn" data-topic="Thuật toán">🔢 Thuật toán & Lập trình</button>
+        <button class="topic-btn" data-topic="Văn phòng">💼 Tin học văn phòng</button>
+      </div>
     </aside>
 
     <div class="main">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <button id="menu-btn" class="p-2 rounded-md bg-transparent hover:bg-white/5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M4 7h16M4 12h16M4 17h16" stroke="#00FFFF" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <div>
-            <div class="text-lg font-bold text-white">AI Thầy Lợi</div>
-            <div class="text-xs text-cyan-200">Trợ lý học Tin học - Cấp THPT</div>
+        <div class="mobile-header lg:hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button id="menu-btn" class="p-2 rounded-lg text-white hover:bg-white/10 transition">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="font-bold text-lg">AI Thầy Lợi</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="current-topic-mobile" class="pill text-xs">🎯 <span id="topic-name-mobile">Tổng quát</span></div>
+                    <button id="theme-toggle-mobile" title="Chuyển sáng/tối" class="p-2 rounded-lg hover:bg-white/10 transition">
+                        <span class="text-xl">🌗</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="hidden lg:flex items-center justify-between p-3 rounded-xl bg-gray-700/10 border border-cyan-800/10 shadow-lg">
+            <h1 class="text-xl font-bold text-cyan-300">Cửa sổ Chat</h1>
+            <div class="flex items-center gap-4">
+                <div id="current-topic" class="pill">🎯 Chủ đề: <span id="topic-name" class="font-bold ml-1">Tổng quát</span></div>
+                <button id="theme-toggle" title="Chuyển sáng/tối" class="p-2 rounded-lg hover:bg-white/10 transition">
+                    <span class="text-xl">🌗</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="chat-window" class="chat-window flex-1">
+          <div class="msg">
+            <div class="avatar">AI</div>
+            <div class="bubble ai markdown">
+              Xin chào 👋 Mình là <strong>AI Thầy Lợi</strong>.<br>
+              Mình là trợ lý chuyên môn, có thể giúp bạn học tập và giải đáp mọi thắc mắc về môn <strong>Tin học THPT</strong> (Python, AI, Mạng, CSDL, Thuật toán).<br><br>
+              Bạn có thể chọn một chủ đề học ở bên cạnh hoặc bắt đầu hỏi ngay nhé!
+            </div>
           </div>
         </div>
-        <div class="flex items-center gap-3">
-          <div id="current-topic" class="pill">🎯 Chủ đề: <span id="topic-name" class="font-semibold ml-2">Tổng quát</span></div>
-          <button id="theme-toggle" title="Chuyển sáng/tối" class="p-2 rounded-md hover:bg-white/10">
-            🌗
-          </button>
-        </div>
-      </div>
 
-      <div id="chat-window" class="chat-window">
-        <div class="msg">
-          <div class="avatar">AI</div>
-          <div class="bubble ai markdown">
-            Xin chào 👋 Mình là <strong>AI Thầy Lợi</strong>.<br>
-            Hãy hỏi mình bất cứ điều gì về môn <strong>Tin học</strong> nhé!
-          </div>
+        <div class="input-wrapper">
+            <div class="max-w-4xl mx-auto flex items-center gap-3 bg-gray-700/30 backdrop-blur-sm rounded-full shadow-2xl p-2 border border-cyan-800/20">
+              <input id="user-input" placeholder="Nhập câu hỏi của bạn (hoặc nhấn Enter)..." class="flex-1 bg-transparent text-white placeholder-gray-400 focus:outline-none px-4 py-3 text-base sm:text-lg" />
+              <button id="send-btn" class="p-3 rounded-full bg-cyan-500 text-gray-900 hover:bg-cyan-400 transition shadow-lg flex items-center justify-center min-w-[48px] min-h-[48px]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
         </div>
-      </div>
-
-      <div class="flex items-center gap-2 bg-white/10 rounded-full px-3 py-2">
-        <input id="user-input" placeholder="Nhập câu hỏi của bạn..." class="flex-1 bg-transparent text-white focus:outline-none px-3 py-2" />
-        <button id="send-btn" class="p-2 rounded-full bg-cyan-400 text-gray-900 hover:bg-cyan-300">📤</button>
-      </div>
     </div>
   </div>
 
@@ -239,63 +400,85 @@
     const closeOffcanvas = document.getElementById('close-offcanvas');
     const topicButtons = document.querySelectorAll('.topic-btn');
     const topicName = document.getElementById('topic-name');
+    const topicNameMobile = document.getElementById('topic-name-mobile');
     const chatWindow = document.getElementById('chat-window');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
     const themeToggle = document.getElementById('theme-toggle');
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+
     let currentTopic = "Tổng quát";
 
-    // === Menu hiệu ứng ===
+    // === Menu (Offcanvas) Effects ===
     menuBtn.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', closeMenu);
     closeOffcanvas.addEventListener('click', closeMenu);
+    
     function toggleMenu() {
       offcanvas.classList.toggle('open');
       overlay.classList.toggle('show');
+      // FIX: Quản lý thuộc tính cuộn của body
+      document.body.style.overflow = offcanvas.classList.contains('open') ? 'hidden' : '';
     }
+    
     function closeMenu() {
       offcanvas.classList.remove('open');
       overlay.classList.remove('show');
+      // FIX: Đảm bảo cuộn trang được khôi phục khi đóng
+      document.body.style.overflow = '';
     }
 
-    // === Chủ đề học ===
+    // === Topic Selection ===
     topicButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         topicButtons.forEach(b => b.classList.remove('topic-active'));
         btn.classList.add('topic-active');
         currentTopic = btn.dataset.topic;
         topicName.textContent = currentTopic;
+        topicNameMobile.textContent = currentTopic;
         closeMenu();
       });
     });
 
-    // === Gửi câu hỏi đến server ===
+    // Initialize default active topic
+    const defaultTopicBtn = Array.from(topicButtons).find(btn => btn.dataset.topic === currentTopic);
+    if (defaultTopicBtn) defaultTopicBtn.classList.add('topic-active');
+
+
+    // === Message Handling (Send, Append, Loading) ===
     sendBtn.addEventListener('click', sendMessage);
     userInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 
     async function sendMessage() {
       const message = userInput.value.trim();
       if (!message) return;
+
+      // 1. Append User Message
       appendUser(message);
       userInput.value = '';
+      userInput.focus();
 
-      // typing
-      const loading = document.createElement('div');
-      loading.className = 'msg';
-      loading.innerHTML = `<div class="avatar">AI</div><div class="bubble ai">...</div>`;
-      chatWindow.appendChild(loading);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+      // 2. Append Loading State
+      const loading = appendLoading();
+      chatWindow.scrollTop = chatWindow.scrollHeight; // Ensure scroll after loading is added
 
       try {
         const res = await fetch('/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          // Include the current topic in the prompt to the AI model
           body: JSON.stringify({ message: `Chủ đề: ${currentTopic}\n${message}` })
         });
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
         const data = await res.json();
+        // 3. Remove Loading and Append AI Reply
         loading.remove();
         appendAI(data.reply);
-      } catch {
+
+      } catch (error) {
+        console.error('Error sending message:', error);
         loading.remove();
         appendAI('⚠️ Lỗi khi gửi yêu cầu, vui lòng thử lại.');
       }
@@ -303,25 +486,59 @@
 
     function appendUser(text) {
       const msg = document.createElement('div');
-      msg.className = 'msg justify-end';
+      msg.className = 'msg user';
       msg.innerHTML = `<div class="bubble user">${text}</div><div class="avatar">Bạn</div>`;
       chatWindow.appendChild(msg);
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
+    function appendLoading() {
+        const msg = document.createElement('div');
+        msg.className = 'msg loading-state';
+        msg.innerHTML = `
+            <div class="avatar">AI</div>
+            <div class="bubble ai loading-dots">
+                <span></span><span></span><span></span>
+            </div>
+        `;
+        chatWindow.appendChild(msg);
+        return msg;
+    }
+
     function appendAI(text) {
       const msg = document.createElement('div');
       msg.className = 'msg';
-      msg.innerHTML = `<div class="avatar">AI</div><div class="bubble ai markdown">${marked.parse(text)}</div>`;
+      // Use DOMPurify to sanitize the HTML output from Markdown before inserting
+      const cleanHTML = DOMPurify.sanitize(marked.parse(text));
+      msg.innerHTML = `<div class="avatar">AI</div><div class="bubble ai markdown">${cleanHTML}</div>`;
       chatWindow.appendChild(msg);
+
+      // Highlight code blocks
       Prism.highlightAll();
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+
+      // Scroll smoothly to the newest message
+      chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
     }
 
-    // === Sáng / Tối ===
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light');
-    });
+    // === Theme Toggle (Light/Dark Mode) ===
+    function toggleTheme() {
+        document.body.classList.toggle('light');
+        // Save preference to localStorage (optional but recommended for professionalism)
+        const isLight = document.body.classList.contains('light');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggleMobile.addEventListener('click', toggleTheme);
+
+    // Initial theme load
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.body.classList.add('light');
+        }
+    }
+    loadTheme();
   </script>
 </body>
 </html>
