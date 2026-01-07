@@ -10,7 +10,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 
 # --- CẤU HÌNH API KEY ---
-genai.configure(api_key="AIzaSyCEUTr2cs8Vz5Wp02GMOa4nKPyE94rWsfs")
+genai.configure(api_key="AIzaSyAAMyrtkNRU7K3lsP-6Sgf2l0lWvZW1vQM") #V3khkt_AI_tro_gi
 
 # System Prompt 
 system_prompt_global = (
@@ -130,4 +130,5 @@ def ask():
         return jsonify({"reply": f"⚠️ Hệ thống đang bận hoặc gặp lỗi kết nối API. Mã lỗi: {str(e)}"})
 
 if __name__ == "__main__":
+
     app.run(host="0.0.0.0", port=5000, debug=True)
