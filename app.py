@@ -10,7 +10,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 
 # --- CẤU HÌNH API KEY ---
-genai.configure(api_key="AIzaSyB0SZDWtLbCSV5iQj9gR4y-FvTOjq4On2c") #V3_ai8-1-26pogiapo1
+genai.configure(api_key="AIzaSyAAMyrtkNRU7K3lsP-6Sgf2l0lWvZW1vQM") #AIzaSyB0SZDWtLbCSV5iQj9gR4y-FvTOjq4On2c
 
 # System Prompt 
 system_prompt_global = (
@@ -132,6 +132,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
