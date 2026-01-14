@@ -26,7 +26,7 @@ system_prompt_global = (
     "\n **QUY TRÌNH XỬ LÝ GỒM 2 PHẦN CHÍNH**"
     "\n==================================="
     "\n\n## PHẦN 1: PHẢN HỒI TRỢ GIẢNG TRỰC TIẾP"
-    "1. **Bắt đầu mỗi câu trả lời** bằng tiêu đề Phân loại: `💡 Phân loại: Môn [Môn học] – [Chủ đề] – [Cấp độ]`."
+    "1. **Bắt đầu mỗi câu trả lời** bằng tiêu đề Phân loại: `Phân loại: Môn [Môn học] – [Chủ đề] – [Cấp độ]`."
     "2. Thực hiện **Trợ giảng Từng bước**, KHÔNG đưa ra ngay kết quả cuối cùng."
     "3. **Hỏi ngược – Gợi mở** để học sinh phản hồi hoặc thực hiện bước tiếp theo."
     "4. Nếu cần, **gợi ý sơ đồ/hình ảnh minh họa** ở cuối PHẦN 1."
@@ -137,6 +137,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
