@@ -1,6 +1,6 @@
 import google.generativeai as genai
 from flask import Flask, render_template, request, jsonify, session
-import os 
+import os
 import json
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,7 +11,7 @@ app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 
-api_key = os.getenv("GOOGLE_API_KEY") 
+api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     raise ValueError("Chưa thiết lập GOOGLE_API_KEY trong Environment Variables!")
 
@@ -139,6 +139,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
