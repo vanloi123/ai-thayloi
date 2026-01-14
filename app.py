@@ -53,9 +53,8 @@ system_prompt_global = (
 
 
 # Model này có mặt trên mọi phiên bản API, đảm bảo không bị lỗi 404
-# Tìm dòng này trong app.py của bạn
 model = genai.GenerativeModel(
-    "gemini-1.5-flash", # Sửa chính xác thành 1.5-flash
+    model_name="gemini-1.5-flash",
     system_instruction=system_prompt_global
 )
 
@@ -138,6 +137,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
