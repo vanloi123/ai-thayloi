@@ -15,6 +15,8 @@ api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     raise ValueError("Chưa thiết lập GOOGLE_API_KEY trong Environment Variables!")
 
+# Ép thư viện sử dụng phiên bản API v1beta để hỗ trợ system_instruction
+os.environ["GOOGLE_GENERATIVE_AI_API_VERSION"] = "v1beta"
 genai.configure(api_key=api_key)
 
 # System Prompt 
@@ -137,6 +139,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
