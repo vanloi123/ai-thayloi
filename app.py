@@ -51,10 +51,11 @@ system_prompt_global = (
     "\n\n**LƯU Ý:** Trả lời toàn bộ dưới dạng Markdown trong một lần phản hồi duy nhất."
 )
 
-# --- SỬA LỖI TUYỆT ĐỐI: DÙNG GEMINI-PRO ---
+
 # Model này có mặt trên mọi phiên bản API, đảm bảo không bị lỗi 404
+# Tìm dòng này trong app.py của bạn
 model = genai.GenerativeModel(
-    "models/gemini-2.5-flash",
+    "gemini-1.5-flash", # Sửa chính xác thành 1.5-flash
     system_instruction=system_prompt_global
 )
 
@@ -137,6 +138,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
