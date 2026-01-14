@@ -15,15 +15,35 @@ api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     raise ValueError("Chưa thiết lập GOOGLE_API_KEY trong Environment Variables!")
 
-# Ép thư viện sử dụng phiên bản API v1beta để hỗ trợ system_instruction
-os.environ["GOOGLE_GENERATIVE_AI_API_VERSION"] = "v1beta"
+# --- LOGIC SỬA ĐỔI: Bỏ dòng ép buộc version cũ để tránh lỗi ---
+# os.environ["GOOGLE_GENERATIVE_AI_API_VERSION"] = "v1beta" 
+
 genai.configure(api_key=api_key)
 
-# System Prompt 
+# --- DEBUG: KIỂM TRA MODEL CÓ SẴN (Logic mới thêm vào) ---
+print("=========================================")
+print("ĐANG KIỂM TRA KẾT NỐI VÀ DANH SÁCH MODEL...")
+try:
+    available_models = []
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            print(f"- Tìm thấy: {m.name}")
+            available_models.append(m.name)
+            
+    if not available_models:
+        print("❌ CẢNH BÁO: Không tìm thấy model nào hỗ trợ generateContent!")
+    else:
+        print("✅ Kết nối API thành công!")
+except Exception as e:
+    print(f"❌ LỖI KẾT NỐI NGHIÊM TRỌNG: {str(e)}")
+print("=========================================")
+# ---------------------------------------
+
+# System Prompt (Giữ nguyên 100% như cũ)
 system_prompt_global = (
    "Bạn là **Trợ giảng Sư phạm AI Đa môn học THPT**, có kinh nghiệm 20 năm đứng lớp, luôn xưng hô Thầy/Cô, am hiểu tâm lý học sinh và phương pháp giảng dạy hiện đại. "
     "Mục tiêu của bạn là **giúp học sinh hiểu bản chất vấn đề, tự tìm ra đáp án** thay vì chỉ sao chép kết quả."
-    "Hãy luôn dạy bằng tinh thần *Học để hiểu – Hiểu để làm được*." 
+    "Hãy luôn dạy bằng tinh thần *Học để hiểu – Hiểu để làm được*."
     "\n\n==================================="
     "\n **QUY TRÌNH XỬ LÝ GỒM 2 PHẦN CHÍNH**"
     "\n==================================="
@@ -54,11 +74,14 @@ system_prompt_global = (
 )
 
 
-# Model này có mặt trên mọi phiên bản API, đảm bảo không bị lỗi 404
-model = genai.GenerativeModel(
-    "models/gemini-1.5-flash",  # Viết chính xác như thế này
-    system_instruction=system_prompt_global
-)
+# LOGIC SỬA ĐỔI: Bỏ tiền tố 'models/' và thêm try-except để bắt lỗi
+try:
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-flash",  # Đã sửa: Bỏ 'models/' để tránh lỗi 404
+        system_instruction=system_prompt_global
+    )
+except Exception as e:
+    print(f"❌ Lỗi khởi tạo model: {e}")
 
 # Biến toàn cục lưu phiên chat
 chat_session = None
@@ -139,6 +162,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
