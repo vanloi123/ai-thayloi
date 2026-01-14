@@ -2,6 +2,8 @@ import google.generativeai as genai
 from flask import Flask, render_template, request, jsonify, session
 import os 
 import json
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 # Cấu hình Session cho Flask
@@ -9,8 +11,11 @@ app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 
-# --- CẤU HÌNH API KEY ---
-genai.configure(api_key="AIzaSyDLp4KKhokBoyOoc69FjgZ66YukJAoXoDA") #AIzaSyB0SZDWtLbCSV5iQj9gR4y-FvTOjq4On2c
+api_key = os.getenv("GOOGLE_API_KEY") 
+if not api_key:
+    raise ValueError("Chưa thiết lập GOOGLE_API_KEY trong Environment Variables!")
+
+genai.configure(api_key=api_key)
 
 # System Prompt 
 system_prompt_global = (
@@ -132,6 +137,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
