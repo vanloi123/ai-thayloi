@@ -68,11 +68,13 @@ system_prompt_global = (
 # LOGIC SỬA ĐỔI: Bỏ tiền tố 'models/' và thêm try-except để bắt lỗi
 try:
     model = genai.GenerativeModel(
-        model_name="gemma-3-27b-it", 
-        system_instruction=system_prompt_global
+        model_name="gemma-3-27b-it" 
     )
-except Exception as e:
-    print(f"❌ Lỗi khởi tạo: {e}")
+except Exception:
+    try:
+        model = genai.GenerativeModel("gemma-3-27b")
+    except Exception as e:
+        print(f"❌ Lỗi khởi tạo: {e}")
 
 # Biến toàn cục lưu phiên chat
 chat_session = None
@@ -153,6 +155,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
