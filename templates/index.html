@@ -12,6 +12,24 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-python.min.js"></script>
 
+  <script>
+    window.MathJax = {
+      loader: {load: ['[tex]/mhchem']}, // Tải gói Hóa học
+      tex: {
+        packages: {'[+]': ['mhchem']},   // Kích hoạt gói Hóa học
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     /* Custom Variables & Global Styles */
     :root {
@@ -139,35 +157,27 @@
     .msg.user { justify-content: flex-end; }
     /* === AVATAR STYLE MỚI === */
     .msg .avatar {
-        min-width: 40px; /* Tăng nhẹ kích thước */
+        min-width: 40px; 
         min-height: 40px;
-        /* Bo góc kiểu hiện đại (Squircle) thay vì tròn xoe */
         border-radius: 12px; 
         display: flex; align-items: center; justify-content: center;
-        
-        /* Nền Gradient công nghệ: Từ Cyan sáng sang Xanh dương */
         background: linear-gradient(135deg, #22d3ee, #0ea5e9);
-        color: #fff; /* Icon màu trắng */
-        
-        /* Hiệu ứng đổ bóng và viền phát sáng nhẹ */
+        color: #fff; 
         box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4), inset 0 1px 1px rgba(255,255,255,0.4);
         border: 1px solid rgba(255, 255, 255, 0.1);
         flex-shrink: 0; transition: all 0.3s ease;
     }
 
-    /* Hiệu ứng khi hover vào avatar AI */
     .msg:not(.user) .avatar:hover {
-        transform: scale(1.05) rotate(-5deg); /* Phóng to và nghiêng nhẹ */
+        transform: scale(1.05) rotate(-5deg); 
         box-shadow: 0 6px 16px rgba(14, 165, 233, 0.6);
     }
 
-    /* Avatar của người dùng (User) - Đơn giản hơn */
     .msg.user .avatar {
         background: linear-gradient(135deg, #f1f5f9, #cbd5e1);
         color: #334155; font-weight: bold; font-size: 0.9rem;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    /* Avatar User ở chế độ sáng */
     body.light .msg.user .avatar {
         background: linear-gradient(135deg, #334155, #1e293b);
         color: #fff;
@@ -700,12 +710,9 @@
         }
     }
 
-    // === HÀM HIỂN THỊ LỜI CHÀO MỚI (Đã thêm định nghĩa) ===
+    // === HÀM HIỂN THỊ LỜI CHÀO MỚI ===
     function showNewTopicGreeting(topic) {
-        // Xóa nội dung chat cũ
         chatWindow.innerHTML = '';
-        
-        // Tạo lời chào mới
         const msg = document.createElement('div');
         msg.className = 'msg topic-greeting';
         msg.innerHTML = `
@@ -718,7 +725,7 @@
         chatWindow.appendChild(msg);
     }
 
-    // === XỬ LÝ SỰ KIỆN NÚT CHỌN MÔN (Đã sửa để reset chat) ===
+    // === XỬ LÝ SỰ KIỆN NÚT CHỌN MÔN ===
     topicButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
         topicButtons.forEach(b => b.classList.remove('topic-active'));
@@ -727,16 +734,13 @@
         topicName.textContent = currentTopic;
         topicNameMobile.textContent = currentTopic;
         
-        // GỌI API RESET CHAT
         try {
             await fetch('/new_chat', { method: 'POST' });
         } catch(e) {
             console.error("Lỗi reset chat:", e);
         }
 
-        // RESET GIAO DIỆN & HIỆN LỜI CHÀO
         showNewTopicGreeting(currentTopic);
-        
         closeMenu();
       });
     });
@@ -771,7 +775,6 @@
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
         const data = await res.json();
-        
         const { chatReply, analytics } = extractJsonData(data.reply);
         
         typingMsg.remove();
@@ -818,6 +821,11 @@
       Prism.highlightAll();
       addCopyButtons(msg);
       chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+
+      // === THÊM DÒNG NÀY: VẼ LẠI CÔNG THỨC ===
+      if (window.MathJax) {
+          MathJax.typesetPromise([msg]).catch((err) => console.log(err));
+      }
     }
     
     async function appendAIWithTyping(fullText) {
@@ -858,6 +866,11 @@
         Prism.highlightAll();
         addCopyButtons(msg);
         chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+
+        // === THÊM DÒNG NÀY: VẼ LẠI CÔNG THỨC ===
+        if (window.MathJax) {
+            MathJax.typesetPromise([msg]).catch((err) => console.log(err));
+        }
     }
 
     function addCopyButtons(msgElement) {
@@ -909,5 +922,4 @@
     loadTheme();
   </script>
 </body>
-
 </html>
