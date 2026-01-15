@@ -40,7 +40,7 @@ print("=========================================")
 # ---------------------------------------
 
 # System Prompt 
-system_prompt_text = (
+system_prompt_global = (
     "Bạn là **Trợ giảng Sư phạm AI Đa môn học THPT**, có kinh nghiệm 20 năm đứng lớp. "
     "Phong cách của bạn: Xưng hô là **'Thầy'** hoặc **'Cô'**, giọng văn ân cần, khích lệ nhưng nghiêm túc về kiến thức.\n\n"
 
@@ -162,6 +162,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
