@@ -139,6 +139,7 @@ def ask():
             f"{system_prompt_global}\n\n"
             f"=== LỊCH SỬ HỘI THOẠI ===\n{history_str}\n\n"
             f"=== CÂU HỎI MỚI ===\nHỌC SINH HỎI: {user_message}"
+            f"⚠️ LƯU Ý CUỐI: Phải kết thúc bằng khối ```json-data ... ``` như đã quy định."
         )
         
         # Cập nhật: Thêm generation_config để giảm nhiệt độ (temperature=0.3)
@@ -146,8 +147,8 @@ def ask():
         response = current_chat.send_message(
             full_prompt,
             generation_config=genai.types.GenerationConfig(
-                temperature=0.3,
-                max_output_tokens=2000
+                temperature=0.1,
+                max_output_tokens=2048
             )
         ) 
         
@@ -176,5 +177,6 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
