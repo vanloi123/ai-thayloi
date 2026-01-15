@@ -3,10 +3,11 @@ from flask import Flask, render_template, request, jsonify, session
 import os
 import json
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
-# Cấu hình Session cho Flask
+# Cấu hình Session cho Flask (GIỮ NGUYÊN)
 app.secret_key = os.urandom(24)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
@@ -15,12 +16,9 @@ api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     raise ValueError("Chưa thiết lập GOOGLE_API_KEY trong Environment Variables!")
 
-# --- LOGIC SỬA ĐỔI: Bỏ dòng ép buộc version cũ để tránh lỗi ---
-# os.environ["GOOGLE_GENERATIVE_AI_API_VERSION"] = "v1beta" 
-
 genai.configure(api_key=api_key)
 
-# --- DEBUG: KIỂM TRA MODEL CÓ SẴN (Logic mới thêm vào) ---
+# --- DEBUG: KIỂM TRA MODEL CÓ SẴN (GIỮ NGUYÊN) ---
 print("=========================================")
 print("ĐANG KIỂM TRA KẾT NỐI VÀ DANH SÁCH MODEL...")
 try:
@@ -39,53 +37,64 @@ except Exception as e:
 print("=========================================")
 # ---------------------------------------
 
-# System Prompt 
+# ==============================================================================
+# 🧠 SYSTEM PROMPT: BẢN CẬP NHẬT (TOÁN - LÝ - HÓA - SINH & PHÂN LOẠI CẤP HỌC)
+# ==============================================================================
 system_prompt_global = (
-   "Bạn là **Thầy/Cô Trợ giảng AI** tâm huyết, có 20 năm kinh nghiệm dạy THPT, luôn xưng hô Thầy/Cô, am hiểu tâm lý học sinh và phương pháp giảng dạy hiện đại. "
-    "Phong cách: Gần gũi, ân cần nhưng gãy gọn. Xưng hô 'Thầy' hoặc 'Cô' và 'em'.\n\n"
+    "Bạn là **Thầy/Cô Trợ giảng AI** tâm huyết, chuyên môn vững vàng, 20 năm kinh nghiệm. "
+    "Phong cách: Gần gũi, ân cần nhưng gãy gọn. Xưng hô 'Thầy/Cô' và 'em'.\n\n"
 
-    "⛔ **QUY TẮC CẤM (ĐỂ GIỐNG NGƯỜI THẬT - QUAN TRỌNG):**\n"
-    "1. **TUYỆT ĐỐI KHÔNG** in ra các tiêu đề phân đoạn như: 'PHẦN 1', 'PHẦN 2', 'TƯƠNG TÁC SƯ PHẠM', 'LỜI GIẢI'.\n"
-    "2. Không chào hỏi sáo rỗng kiểu robot (như 'Rất vui được hỗ trợ...'). Hãy đi thẳng vào vấn đề một cách tự nhiên.\n"
-    "3. Không đưa đáp án ngay. Hãy hỏi gợi mở (Socratic method).\n\n"
-    "2. Không bịa đặt phân loại môn học khi người dùng chỉ chào hỏi.\n\n"
+    "⚙️ **LOGIC XỬ LÝ THÔNG MINH (BẮT BUỘC):**\n"
+    "1. **NẾU LÀ CHÀO HỎI XÃ GIAO** (Ví dụ: 'Xin chào', 'Hello', 'Thầy ơi'):\n"
+    "   - -> **BỎ QUA** dòng Phân loại.\n"
+    "   - -> Trả lời thân thiện, ngắn gọn, mời học sinh đặt câu hỏi.\n"
+    "2. **NẾU LÀ CÂU HỎI HỌC TẬP**:\n"
+    "   - -> **BẮT BUỘC** mở đầu bằng dòng: `💡 Phân loại: [Môn] – [Chủ đề] – [Cấp học]`.\n"
+    "   - -> Cấp học CHỈ ĐƯỢC GHI: **Tiểu học**, **THCS**, hoặc **THPT** (Tuyệt đối KHÔNG ghi 'Lớp 10', 'Grade 11').\n"
+    "   - -> Sau đó giải thích gợi mở (Socratic method), không đưa đáp án ngay.\n\n"
     
-    "⚠️ **QUY TẮC HIỂN THỊ (BẮT BUỘC):**\n"
-    "1. **TOÁN/LÝ/HÓA:** Dùng mã **LaTeX** cho mọi công thức ($...$ hoặc $$...$$).\n"
-    "2. **VĂN/SỬ/ĐỊA:** Trình bày thoáng, in đậm từ khóa.\n\n"
+    "⚠️ **QUY TẮC HIỂN THỊ KHOA HỌC (TUÂN THỦ NGHIÊM NGẶT):**\n"
+    "1. **TOÁN & VẬT LÝ:**\n"
+    "   - BẮT BUỘC dùng mã **LaTeX** cho mọi biểu thức/công thức.\n"
+    "   - Kẹp trong `$ ... $` (nếu nằm cùng dòng) hoặc `$$ ... $$` (nếu nằm riêng dòng).\n"
+    "   - Ví dụ chuẩn: 'Phương trình $x^2 - 4 = 0$ có nghiệm...'.\n"
+    "   - Ví dụ Vật lý: $F = ma$, $\\lambda = \\frac{v}{f}$.\n"
+    "2. **HÓA HỌC (RẤT QUAN TRỌNG):**\n"
+    "   - BẮT BUỘC dùng lệnh `\\ce{...}` cho mọi công thức hóa học (Để hiển thị chữ đứng).\n"
+    "   - Ví dụ: Thay vì viết $H_2SO_4$ (sai), phải viết $\\ce{H2SO4}$ (đúng).\n"
+    "   - Phương trình phản ứng: $\\ce{2H2 + O2 ->[t^o] 2H2O}$.\n"
+    "   - Ion: $\\ce{Cu^2+}$, $\\ce{SO4^2-}$.\n"
+    "3. **SINH HỌC / CÁC MÔN KHÁC:**\n"
+    "   - Trình bày mạch lạc, in đậm các từ khóa quan trọng.\n"
+    "   - Sơ đồ lai (nếu có) trình bày rõ ràng từng dòng P, G, F1.\n\n"
 
-    "📝 **CẤU TRÚC TRẢ LỜI MONG MUỐN:**\n"
-    "1. Dòng 1: `💡 Phân loại: Môn [Môn] – [Chủ đề] – [Cấp độ]` (Luôn bắt đầu bằng dòng này).\n"
-        "Trong đó, phần **[Cấp học]** CHỈ ĐƯỢC CHỌN 1 TRONG 3 GIÁ TRỊ SAU:\n"
-        "   - **Tiểu học** (Nếu kiến thức thuộc lớp 1, 2, 3, 4, 5)\n"
-        "   - **THCS** (Nếu kiến thức thuộc lớp 6, 7, 8, 9)\n"
-        "   - **THPT** (Nếu kiến thức thuộc lớp 10, 11, 12 hoặc Đại học/Chuyên sâu)\n"
-        "   - (Tuyệt đối KHÔNG ghi: Lớp 10, Grade 10, Cấp độ 10...)\n\n"
-    "2. Xuống dòng và nói chuyện trực tiếp với học sinh. Giải thích vấn đề, đặt câu hỏi gợi ý.\n"
-    "3. Cuối cùng (ẩn): Block JSON dữ liệu.\n\n"
+    "⛔ **QUY TẮC CẤM:**\n"
+    "1. Không in ra các tiêu đề thừa như 'PHẦN 1', 'LỜI GIẢI', 'TƯƠNG TÁC'.\n"
+    "2. Không chào hỏi lặp lại kiểu robot ở mỗi câu trả lời.\n\n"
 
     "📊 **JSON DATA (BẮT BUỘC Ở CUỐI CÙNG):**\n"
+    "Kết thúc câu trả lời, in ra block code json-data chứa dữ liệu thống kê:\n"
     "```json-data\n"
     "{\n"
-    ' "progress_strong": "[Chủ đề tốt]",\n'
-    ' "progress_weak": "[Cần cải thiện]",\n'
-    ' "analytics_summary": "[Nhận xét ngắn về tư duy]",\n'
+    ' "progress_strong": "[Chủ đề học sinh nắm vững]",\n'
+    ' "progress_weak": "[Chủ đề cần cải thiện]",\n'
+    ' "analytics_summary": "[Nhận xét ngắn gọn về tư duy của học sinh]",\n'
     ' "recommendations": ["[Gợi ý 1]", "[Gợi ý 2]"]\n'
     "}\n"
     "```"
 )
-# LOGIC SỬA ĐỔI: Bỏ tiền tố 'models/' và thêm try-except để bắt lỗi
+
+# KHỞI TẠO MODEL (Ưu tiên bản -it, fallback về bản thường)
 try:
-    model = genai.GenerativeModel(
-        model_name="gemma-3-27b-it" 
-    )
+    model = genai.GenerativeModel("gemma-3-27b-it")
 except Exception:
     try:
         model = genai.GenerativeModel("gemma-3-27b")
+        print("⚠️ Đang dùng bản gemma-3-27b thường (Do bản -it không tìm thấy)")
     except Exception as e:
-        print(f"❌ Lỗi khởi tạo: {e}")
+        print(f"❌ Lỗi khởi tạo model: {e}")
 
-# Biến toàn cục lưu phiên chat
+# Biến toàn cục lưu phiên chat (GIỮ NGUYÊN)
 chat_session = None
 
 def get_chat_session():
@@ -106,7 +115,7 @@ def index():
 
 @app.route("/new_chat", methods=["POST"])
 def new_chat():
-    """Xử lý Reset khi người dùng chọn môn mới"""
+    """Xử lý Reset khi người dùng chọn môn mới (GIỮ NGUYÊN)"""
     global chat_session
     chat_session = None 
     session.clear() 
@@ -122,26 +131,34 @@ def ask():
     try:
         current_chat = get_chat_session()   
         
-        # Tóm tắt lịch sử
+        # Tóm tắt lịch sử (GIỮ NGUYÊN LOGIC CŨ)
         history_data = session.get('learning_history', [])
         recent_history = history_data[-3:] 
         
         history_str = "\n".join([f"Học sinh: {h['user']} | AI: {h['ai_summary']}" for h in recent_history])
         
-        # --- KỸ THUẬT NHÚNG SYSTEM PROMPT VÀO TIN NHẮN ---
-        # Để đảm bảo hoạt động trên các phiên bản thư viện cũ chưa hỗ trợ system_instruction
+        # --- KỸ THUẬT NHÚNG SYSTEM PROMPT VÀO TIN NHẮN (PROMPT INJECTION) ---
+        # Ghép System Prompt mới vào trước câu hỏi để ép model tuân thủ quy tắc
         full_prompt = (
             f"{system_prompt_global}\n\n"
             f"=== LỊCH SỬ HỘI THOẠI ===\n{history_str}\n\n"
-            f"=== CÂU HỎI MỚI ===\n: {user_message}"
+            f"=== CÂU HỎI MỚI ===\nHỌC SINH HỎI: {user_message}"
         )
         
-        response = current_chat.send_message(full_prompt) 
+        # Cập nhật: Thêm generation_config để giảm nhiệt độ (temperature=0.3)
+        # Giúp model viết công thức Toán/Hóa chuẩn hơn, ít bịa đặt
+        response = current_chat.send_message(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.3,
+                max_output_tokens=2000
+            )
+        ) 
         
         if not response.text:
              return jsonify({"reply": "Lỗi: AI không phản hồi."})       
         
-        # Lưu vào lịch sử (Lọc bỏ phần JSON)
+        # Lưu vào lịch sử (Lọc bỏ phần JSON) - GIỮ NGUYÊN
         ai_reply_full = response.text
         clean_text_for_history = ai_reply_full.split("```json-data")[0].strip()
         
@@ -162,42 +179,4 @@ def ask():
         return jsonify({"reply": f"⚠️ Hệ thống đang bận hoặc gặp lỗi kết nối API. Mã lỗi: {str(e)}"})
 
 if __name__ == "__main__":
-
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
