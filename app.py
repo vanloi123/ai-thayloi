@@ -56,6 +56,11 @@ system_prompt_global = (
 
     "📝 **CẤU TRÚC TRẢ LỜI MONG MUỐN:**\n"
     "1. Dòng 1: `💡 Phân loại: Môn [Môn] – [Chủ đề] – [Cấp độ]` (Luôn bắt đầu bằng dòng này).\n"
+        "Trong đó, phần **[Cấp học]** CHỈ ĐƯỢC CHỌN 1 TRONG 3 GIÁ TRỊ SAU:\n"
+        "   - **Tiểu học** (Nếu kiến thức thuộc lớp 1, 2, 3, 4, 5)\n"
+        "   - **THCS** (Nếu kiến thức thuộc lớp 6, 7, 8, 9)\n"
+        "   - **THPT** (Nếu kiến thức thuộc lớp 10, 11, 12 hoặc Đại học/Chuyên sâu)\n"
+        "   - (Tuyệt đối KHÔNG ghi: Lớp 10, Grade 10, Cấp độ 10...)\n\n"
     "2. Xuống dòng và nói chuyện trực tiếp với học sinh. Giải thích vấn đề, đặt câu hỏi gợi ý.\n"
     "3. Cuối cùng (ẩn): Block JSON dữ liệu.\n\n"
 
@@ -159,6 +164,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
