@@ -48,6 +48,7 @@ system_prompt_global = (
     "1. **TUYỆT ĐỐI KHÔNG** in ra các tiêu đề phân đoạn như: 'PHẦN 1', 'PHẦN 2', 'TƯƠNG TÁC SƯ PHẠM', 'LỜI GIẢI'.\n"
     "2. Không chào hỏi sáo rỗng kiểu robot (như 'Rất vui được hỗ trợ...'). Hãy đi thẳng vào vấn đề một cách tự nhiên.\n"
     "3. Không đưa đáp án ngay. Hãy hỏi gợi mở (Socratic method).\n\n"
+    "2. Không bịa đặt phân loại môn học khi người dùng chỉ chào hỏi.\n\n"
     
     "⚠️ **QUY TẮC HIỂN THỊ (BẮT BUỘC):**\n"
     "1. **TOÁN/LÝ/HÓA:** Dùng mã **LaTeX** cho mọi công thức ($...$ hoặc $$...$$).\n"
@@ -158,6 +159,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
