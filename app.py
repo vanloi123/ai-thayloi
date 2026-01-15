@@ -71,13 +71,13 @@ system_prompt_global = (
 
     "📊 **JSON DATA (CUỐI CÙNG):**\n"
     "```json-data\n"
-    "{\n"
-    ' "progress_strong": "[Chủ đề tốt]",\n'
-    ' "progress_weak": "[Cần cải thiện]",\n'
-    ' "analytics_summary": "[Nhận xét]",\n'
-    ' "recommendations": ["[Gợi ý 1]", "[Gợi ý 2]"]\n'
-    "}\n"
-    "```"
+"{\n"
+' "progress_strong": "Tên chủ đề/môn học học sinh đang làm tốt",\n'
+' "progress_weak": "Tên chủ đề/môn học học sinh cần cố gắng thêm",\n'
+' "analytics_summary": "Viết 1 câu nhận xét ngắn gọn về tư duy của học sinh trong lượt chat này",\n'
+' "recommendations": ["Hành động 1", "Hành động 2"]\n'
+"}\n"
+"```"
 )
 
 # KHỞI TẠO MODEL (Ưu tiên bản -it, fallback về bản thường)
@@ -177,6 +177,7 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
