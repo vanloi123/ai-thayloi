@@ -63,11 +63,11 @@ system_prompt_global = (
     "⚠️ **QUY TẮC HIỂN THỊ KHOA HỌC:**\n"
     "1. **TOÁN/LÝ:** Bắt buộc dùng LaTeX `$ ... $` hoặc `$$ ... $$`.\n"
     "2. **HÓA HỌC:** Bắt buộc dùng `\\ce{...}` (Ví dụ: $\\ce{H2SO4}$).\n\n"
+    "3. **SINH/VĂN/SỬ:** Trình bày mạch lạc, **in đậm** các từ khóa quan trọng.\n\n"
 
     "⛔ **CẤM:**\n"
     "1. Không in tiêu đề thừa (PHẦN 1...).\n"
     "2. Không chào lại 'Chào em' nếu đang trong cuộc hội thoại liên tục.\n\n"
-    "3. Không đưa đáp án ngay. Hãy hỏi gợi mở (Socratic method).\n\n"
 
     "📊 **JSON DATA (CUỐI CÙNG):**\n"
     "```json-data\n"
@@ -176,4 +176,5 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
