@@ -76,7 +76,7 @@ system_prompt_global = (
 # LOGIC SỬA ĐỔI: Bỏ tiền tố 'models/' và thêm try-except để bắt lỗi
 try:
     model = genai.GenerativeModel(
-        model_name="gemini-flash-lite-latest",  # Đã sửa: Bỏ 'models/' để tránh lỗi 404
+        model_name="gemini-2.0-flash-exp",  # Đã sửa: Bỏ 'models/' để tránh lỗi 404
         system_instruction=system_prompt_global
     )
 except Exception as e:
@@ -161,6 +161,7 @@ def ask():
 if __name__ == "__main__":
 
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
